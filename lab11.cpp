@@ -54,3 +54,57 @@ void addSymptom(Appointment &a, const std::string &sym) {
     a.symptoms = newArr;
     a.symptomCount = newCount;
 }
+
+// Remove a symptom at index `idx` (0-based). Safely ignore bad indices.
+void removeSymptomAt(Appointment &a, size_t idx) {
+    if (idx >= a.symptomCount) {
+        std::cout << "[removeSymptomAt] Ignored invalid index " << idx << "\n";
+        return;
+    }
+
+    // If removing the last remaining symptom, end up with an empty array.
+    size_t newCount = a.symptomCount - 1;
+
+    if (newCount == 0) {
+        delete[] a.symptoms;     // free old (size 1) array
+        a.symptoms = nullptr;    // no array left
+        a.symptomCount = 0;      // count is zero
+        return;
+    }
+
+    // Otherwise, allocate a NEW array with size-1
+    std::string *newArr = new std::string[newCount];
+
+    // Copy everything except the element at idx
+    size_t w = 0;
+    for (size_t r = 0; r < a.symptomCount; ++r) {
+        if (r == idx) continue;   // skip the removed index
+        newArr[w++] = a.symptoms[r];
+    }
+
+    // Free old array and update pointer/count
+    delete[] a.symptoms;
+    a.symptoms = newArr;
+    a.symptomCount = newCount;
+}
+
+// Free the inner dynamic array of symptoms for one Appointment.
+void freeAppointment(Appointment &a) {
+    delete[] a.symptoms;   // safe if nullptr
+    a.symptoms = nullptr;
+    a.symptomCount = 0;
+}
+
+// Pretty-print one Appointment.
+void printAppointment(const Appointment &a) {
+    std::cout << "Ticket #" << a.ticketNo << " — " << a.patientName << "\n";
+    std::cout << "  Symptoms (" << a.symptomCount << "): ";
+    if (a.symptomCount == 0) {
+        std::cout << "(none)\n";
+        return;
+    }
+    for (size_t i = 0; i < a.symptomCount; ++i) {
+        std::cout << (i == 0 ? "" : ", ") << a.symptoms[i];
+    }
+    std::cout << "\n";
+}
